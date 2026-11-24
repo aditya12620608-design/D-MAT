@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>D-MAT – Discrete Mathematics & Computation Workbench</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<canvas id="bg" aria-hidden="true"></canvas><aside id="side"><header><div class="logo" aria-hidden="true">∑</div><div><h1>D-MAT</h1><p>Discrete mathematics and computation workbench</p></div></header>
+<nav id="tabs" role="tablist"></nav><div id="acct"></div></aside>
+<main><div id="bar"><span id="cur"></span><button class="go" onclick="saveExp()">Save experiment</button></div>
+
+<section id="t0"><h2>Sets, relations and functions</h2><p class="sub">Separate elements with commas. Pairs are written a-b for relations and a&gt;b for functions.</p>
+<div class="grid"><div>
+<label for="sa">Set A</label><input id="sa" value="1,2,3,4">
+<label for="sb">Set B</label><input id="sb" value="3,4,5,6">
+<label for="rel">Relation on A (pairs a-b)</label><input id="rel" value="1-1,2-2,3-3,4-4,1-2,2-1">
+<label for="fn">Function A → B (pairs a&gt;b)</label><input id="fn" value="1>3,2>4,3>5,4>6">
+<button class="go" onclick="runSets()">Analyze</button></div>
+<div><div id="venn"></div></div></div>
+<div id="so"></div></section>
+
+<section id="t1"><h2>Logic and Boolean expressions</h2><p class="sub">Use &amp; | ~ ^ -&gt; &lt;-&gt; (or ∧ ∨ ¬ ⊕ → ↔), parentheses, and 0/1. Every subexpression gets its own column, so you can follow the evaluation.</p>
+<label for="ex">Expression</label><input id="ex" value="(A & B) | ~A">
+<label for="ex2">Compare with (optional)</label><input id="ex2" value="A -> B">
+<button class="go" onclick="runLogic()">Build truth table</button><div id="lo"></div></section>
+
+<section id="t2"><h2>Finite automata simulator</h2><p class="sub">One transition per line as “from, symbol, to”. Use e for ε. NFAs and ε-NFAs work too.</p>
+<div class="grid"><div>
+<label for='fa-type'>Machine type</label><select id='fa-type' onchange='runFA()'><option value='dfa'>DFA</option><option value='nfa'>NFA</option><option value='enfa'>ε-NFA</option></select><label for='fa-p'>Write your own problem</label><input id='fa-p' placeholder='e.g. accepting strings ending with 11'><p class='note' style='margin:6px 0 0'>Try: ending with 11, starting with 01, containing 101, even number of 0s, number of 1s divisible by 3, binary number divisible by 3, exactly 2 a’s, at least 2 b’s, length divisible by 2.</p><button class='go' onclick='buildFA()'>Build automaton</button><label for="fa-ex">Predefined examples</label><select id="fa-ex" onchange="loadEx(this.value)"><option value="">Custom: edit the fields below</option><option value="ends01">DFA: binary strings ending in 01</option><option value="even0">DFA: even number of 0s</option><option value="has101">DFA: contains substring 101</option><option value="nfa01">NFA: strings ending in 01</option><option value="enfa">ε-NFA: a* followed by b*</option></select><label for="fa-t">Transitions</label><textarea id="fa-t">q0,0,q1
+q0,1,q0
+q1,0,q1
+q1,1,q2
+q2,0,q1
+q2,1,q0</textarea>
+<label for="fa-s">Start state</label><input id="fa-s" value="q0">
+<label for="fa-f">Accepting states</label><input id="fa-f" value="q2">
+<label for="fa-w">Input string (binary strings ending in 01 by default)</label><input id="fa-w" value="1101">
+<button class="go" onclick="runFA()">Run automaton</button>
+<button class="sec" onclick="subset()">NFA → DFA and minimize</button></div>
+<div><div id="fa-svg"></div></div></div>
+<div id="fa-v"></div><div id="fa-st"></div><div id="fa-o"></div></section>
+
+<section id="t3"><h2>Graph theory visualizer</h2><p class="sub">Vertices separated by commas. Edges are one per line, as A-B or A-B:4 with a weight.</p>
+<div class="grid"><div>
+<label for="gv">Vertices</label><input id="gv" value="A,B,C,D,E">
+<label for="ge">Edges</label><textarea id="ge">A-B:4
+A-C:2
+B-D:5
+C-D:1
+D-E:3
+B-C:1</textarea>
+<label for="ga">Algorithm</label><select id="ga"><option value="bfs">Breadth-first search</option><option value="dfs">Depth-first search</option><option value="col">Graph coloring</option><option value="dij">Shortest path (Dijkstra)</option><option value="deg">Degrees</option></select>
+<label for="g1">Start vertex</label><input id="g1" value="A">
+<label for="g2">End vertex (shortest path)</label><input id="g2" value="E">
+<button class="go" onclick="runGraph()">Run step by step</button></div>
+<div><div id="g-svg"></div></div></div><div id="g-st"></div></section>
+
+<section id="t4"><h2>Grammar analyzer</h2><p class="sub">One rule per line, alternatives split by |. Write ε as e. Write symbols with spaces, or without spaces for single characters. Capitalized names on the left are variables.</p>
+<div class="grid"><div>
+<label for="g-r">Productions</label><textarea id="g-r">S -> aSb | e</textarea>
+<label for="g-w">String to test</label><input id="g-w" value="aabb">
+<button class="go" onclick="runG()">Check string</button></div>
+<div id="g-tree"></div></div><div id="g-o"></div>
+<p class="note">The parser searches leftmost derivations with pruning. It handles any context-free grammar and stops at 40,000 forms.</p></section>
+<section id='home'><h2>Welcome to D-MAT</h2><p class='sub'>Choose a workbench. Every result comes with the steps that produced it, and signed-in students can save experiments to History.</p><div class='cards' id='cards'></div></section><section id='t5'><h2>Moore and Mealy machines</h2><p class='sub'>Finite automata with output. A Moore machine puts the output on states, a Mealy machine puts it on transitions. Run a string, then convert the machine to the other type.</p><div class='grid'><div><label for='mm-ex'>Predefined examples</label><select id='mm-ex' onchange='loadMMex(this.value)'><option value=''>Custom: edit the fields below</option><option value='moore11'>Moore: output 1 after two 1s in a row</option><option value='flip'>Mealy: bit complementer</option><option value='seq01'>Mealy: detect the pattern 01</option><option value='vend'>Mealy: vending machine (a = 5, b = 10, price 15)</option></select><label for='mm-type'>Machine type</label><select id='mm-type'><option value='moore'>Moore</option><option value='mealy'>Mealy</option></select><label for='mm-t'>Transitions (Moore: from,input,to. Mealy: from,input,to,output)</label><textarea id='mm-t'></textarea><label for='mm-o'>State outputs, Moore only (for example q0=0, q1=1)</label><input id='mm-o'><label for='mm-s'>Start state</label><input id='mm-s'><label for='mm-w'>Input string</label><input id='mm-w'><button class='go' onclick='runMM()'>Run machine</button><button class='sec' onclick='convMM()'>Convert to the other type</button></div><div><div id='mm-svg'></div></div></div><div id='mm-v'></div><div id='mm-st'></div><div id='mm-o2'></div></section><section id='learn'><h2>Syllabus</h2><p class='sub'>Six units with every topic explained briefly. Tick topics as you master them; your progress is kept on this device.</p><div id='lu'></div></section><section id='hist'><h2>Experiment history</h2><p class='sub' id='hnote'></p><div id='hlist'></div></section></main><div id='toast' role='status'></div><footer></footer>
+
+
+
+
+
+
+
+<script src="js/main.js"></script>
+<script src="js/sets.js"></script>
+<script src="js/logic.js"></script>
+<script src="js/automata.js"></script>
+<script src="js/graphs.js"></script>
+<script src="js/grammar.js"></script>
+<script src="js/moore-mealy.js"></script>
+<script src="js/syllabus.js"></script>
+</body>
+</html>
